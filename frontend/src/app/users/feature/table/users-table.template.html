@@ -1,0 +1,101 @@
+<app-filters [filters]="filters()" (filterChange)="filterChange($event)" />
+
+<mat-table
+  matSort
+  matSortDisableClear
+  [dataSource]="dataSource()"
+  [trackBy]="trackBy"
+  (matSortChange)="sortChange($event)"
+>
+  <!-- Name -->
+  <ng-container matColumnDef="name">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="firstName">Name</mat-header-cell>
+
+    <mat-cell *matCellDef="let user" [style.cursor]="'pointer'" [routerLink]="['/users', user.id]">
+      <app-entity
+        [avatarUrl]="user.photo"
+        [title]="user | fullName"
+        [description]="user.position"
+      />
+    </mat-cell>
+  </ng-container>
+
+  <!-- Email -->
+  <ng-container matColumnDef="location">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="location">Location</mat-header-cell>
+
+    <mat-cell *matCellDef="let user">
+      <span class="text-truncate">{{ user.location || '-' }}</span>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Phone -->
+  <ng-container matColumnDef="project">
+    <mat-header-cell *matHeaderCellDef>Project</mat-header-cell>
+
+    <mat-cell *matCellDef="let user">{{ user.project?.title || '-' }}</mat-cell>
+  </ng-container>
+
+  <!-- Start date -->
+  <ng-container matColumnDef="startDate">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="startDate">Start date</mat-header-cell>
+
+    <mat-cell *matCellDef="let user">
+      {{ (user.startDate | date: 'longDate') || '-' }}
+    </mat-cell>
+  </ng-container>
+
+  <!-- Status -->
+  <ng-container matColumnDef="status">
+    <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+
+    <mat-cell *matCellDef="let user">
+      <mat-chip-set>
+        <mat-chip [appChipColor]="user.status">
+          <span> {{ (user.status | titlecase) || '-' }} </span>
+        </mat-chip>
+      </mat-chip-set>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Actions -->
+  <ng-container matColumnDef="actions">
+    <mat-header-cell *matHeaderCellDef>
+      <button mat-icon-button (click)="createUser()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </mat-header-cell>
+
+    <mat-cell *matCellDef="let user">
+      <button mat-icon-button (click)="deleteUser(user.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Nothing found -->
+  <ng-container matColumnDef="nothingFound">
+    <mat-footer-cell class="d-flex justify-content-start" *matFooterCellDef>
+      <span>Nothing has been found...</span>
+    </mat-footer-cell>
+  </ng-container>
+
+  <!-- Paginator -->
+  <ng-container matColumnDef="paginator">
+    <mat-footer-cell *matFooterCellDef>
+      <mat-paginator
+        showFirstLastButtons
+        [pageSizeOptions]="pageSize"
+        [length]="page().total!"
+        [pageIndex]="page().current!"
+        (page)="pageChange($event)"
+      ></mat-paginator>
+    </mat-footer-cell>
+  </ng-container>
+
+  <!-- Wrapper -->
+  <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: columns"></mat-row>
+  <mat-footer-row *matFooterRowDef="dataSource().length === 0 ? ['nothingFound'] : ['paginator']">
+  </mat-footer-row>
+</mat-table>

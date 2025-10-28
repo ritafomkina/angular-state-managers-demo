@@ -1,0 +1,15 @@
+@if (isLoading()) {
+  <mat-progress-bar mode="indeterminate" color="accent" class="progressbar" />
+}
+
+<div class="d-flex align-items-center justify-content-center gap-5 p-4 my-2 nav">
+  @for (link of navlinks; track link.name) {
+    <a class="nav__link" [routerLink]="link.routerLink" [routerLinkActive]="'active'">
+      <span>{{ link.name }}</span>
+    </a>
+    @if (!$last) {
+      <mat-divider vertical="true" style="height: 2rem" class="ps-3"></mat-divider>
+    }
+  }
+</div>
+<router-outlet />

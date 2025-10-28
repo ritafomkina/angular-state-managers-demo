@@ -1,0 +1,65 @@
+<section class="d-flex flex-column justify-content-between p-4 gap-3 card__wrapper">
+  <div class="d-flex align-items-center justify-content-between">
+    <h2 class="mb-0 card__title">Base info</h2>
+    <button matButton="text" color="primary" (click)="edit.emit()">Edit</button>
+  </div>
+  <div class="d-flex flex-column gap-4">
+    <!-- Name and last name -->
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Name</div>
+        <span class="card__field-title card__field-title-m">{{ user()?.firstName || '-' }}</span>
+      </div>
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">Last name</div>
+        <span class="card__field-title card__field-title-m">{{ user()?.lastName || '-' }}</span>
+      </div>
+    </div>
+    <!-- Position -->
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Position</div>
+        <span class="card__field-title card__field-title-m">{{ user()?.position || '-' }}</span>
+      </div>
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">Project</div>
+        @if (user()?.project) {
+          <a
+            class="card__field-title card__field-title-m"
+            [routerLink]="['/projects', user()?.project?.id]"
+            >{{ user()?.project?.title || '-' }}</a
+          >
+        } @else {
+          <span class="card__field-title card__field-title-m">-</span>
+        }
+      </div>
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">Status</div>
+        <mat-chip-set>
+          <mat-chip [appChipColor]="user()?.status">
+            {{ (user()?.status | titlecase) || '-' }}
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+    </div>
+    <!-- Date of birth and start date -->
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Date of birth</div>
+        <span class="card__field-title card__field-title-m">{{
+          (user()?.dateOfBirth | date: 'longDate') || '-'
+        }}</span>
+      </div>
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">Start date</div>
+        <span class="card__field-title card__field-title-m">{{
+          (user()?.startDate | date: 'longDate') || '-'
+        }}</span>
+      </div>
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">Location</div>
+        <span class="card__field-title card__field-title-m">{{ user()?.location || '-' }}</span>
+      </div>
+    </div>
+  </div>
+</section>

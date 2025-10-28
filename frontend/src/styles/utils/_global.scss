@@ -1,0 +1,53 @@
+.progressbar {
+  position: absolute !important;
+  z-index: 999;
+}
+
+.card {
+  &__wrapper {
+    border: 1px solid var(--borders-bg);
+    cursor: pointer;
+    gap: 1rem;
+  }
+
+  &__title {
+    color: var(--primary);
+    font-weight: bold;
+  }
+
+  &__field-title {
+    display: grid;
+    font-weight: bold;
+    color: var(--text-base-color);
+    white-space: nowrap;
+
+    &-s {
+      font-size: 14px;
+    }
+
+    &-m {
+      font-size: 1.5rem;
+    }
+
+    &-l {
+      font-size: 2.5rem;
+    }
+  }
+
+  &__field-description {
+    color: var(--text-inactive-color);
+    white-space: nowrap;
+
+    &-s {
+      font-size: 12px;
+    }
+
+    &-m {
+      font-size: 1rem;
+    }
+
+    &-l {
+      font-size: 1.125rem;
+    }
+  }
+}
