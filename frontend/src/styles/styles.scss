@@ -1,0 +1,35 @@
+@use 'utils/bootstrap';
+@use 'utils/material';
+@use 'utils/global';
+
+html,
+body {
+  background-color: var(--page-bg);
+  font-family: 'Inter', sans-serif !important;
+}
+
+body *:not(.material-icons):not([class*='mat-icon']) {
+  font-family: 'Inter', sans-serif !important;
+}
+
+:root {
+  // colors
+  --primary: #b885e4;
+  --warn: #f12b2c;
+  --page-bg: #fff;
+  --block-bg: #fdfdfd;
+  --borders-bg: #dfe0eb;
+
+  // chips
+  --red: #f27275;
+  --yellow: #f9c66c;
+  --green: #6dc7a3;
+  --blue: #7d97f0;
+  --purple: #b885e4;
+  --gray: #a3a9bb;
+
+  // text
+  --text-base-color: #252733;
+  --text-secondary-color: rgba(37, 39, 51, 0.65);
+  --text-inactive-color: #a9a9a9;
+}

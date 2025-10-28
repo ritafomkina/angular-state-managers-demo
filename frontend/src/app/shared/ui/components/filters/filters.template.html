@@ -1,0 +1,16 @@
+<div class="d-flex gap-3 mb-3 w-100">
+  @for (filter of filters() | keyvalue; track filter.key) {
+    <div
+      matRipple
+      tabindex="0"
+      class="d-flex flex-column justify-content-center align-items-center p-3 flex-fill card__wrapper"
+      (click)="filterChange.emit(filter.key)"
+    >
+      <div class="pb-2 card__field-description card__field-description-l">
+        {{ filter.key | titlecase }}
+      </div>
+
+      <div class="card__field-title card__field-title-l">{{ filter.value }}</div>
+    </div>
+  }
+</div>
