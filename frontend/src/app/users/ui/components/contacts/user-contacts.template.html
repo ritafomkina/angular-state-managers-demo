@@ -1,0 +1,19 @@
+<section class="d-flex flex-column justify-content-between p-4 gap-3 card__wrapper">
+  <div class="d-flex align-items-center justify-content-between">
+    <h2 class="mb-0 card__title">Contacts</h2>
+    <button matButton color="primary" (click)="edit.emit()">Edit</button>
+  </div>
+  <div class="d-flex flex-column gap-4">
+    <!-- Phone and email -->
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Phone</div>
+        <span class="card__field-title card__field-title-m">{{ contacts()?.phone || '-' }} </span>
+      </div>
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">Email</div>
+        <span class="card__field-title card__field-title-m">{{ contacts()?.email || '-' }}</span>
+      </div>
+    </div>
+  </div>
+</section>

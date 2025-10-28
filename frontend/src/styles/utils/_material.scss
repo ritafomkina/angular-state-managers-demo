@@ -1,0 +1,85 @@
+// dialog
+
+.mat-mdc-dialog-content {
+  overflow: visible !important;
+}
+
+// snackbar
+
+.mat-mdc-snack-bar-container {
+  min-width: 15rem !important;
+  max-width: 20rem !important;
+  .mat-mdc-snackbar-surface {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+}
+
+.mdc-snackbar__surface {
+  background-color: inherit !important;
+}
+
+.snackbar {
+  margin-top: 4rem !important;
+  color: var(--page-bg);
+
+  .mat-mdc-simple-snack-bar {
+    justify-content: center;
+  }
+
+  &-success {
+    background-color: var(--green);
+  }
+  &-info {
+    background-color: var(--primary);
+  }
+  &-error {
+    background-color: var(--warn);
+  }
+  &-warning {
+    background-color: var(--accent);
+  }
+}
+
+// table
+
+.mat-mdc-header-cell {
+  font-weight: bold !important;
+  font-size: 1.275rem !important;
+  justify-content: center !important;
+}
+
+.mat-mdc-header-row {
+  border-bottom: 1px solid var(--borders-bg) !important;
+}
+
+.mat-column {
+  &-actions {
+    flex: 0.2;
+  }
+
+  &-status,
+  &-type {
+    flex: 0.5;
+  }
+}
+
+.mat-mdc-row {
+  padding: 1rem 0 !important;
+  border-bottom: 1px solid var(--borders-bg) !important;
+
+  &:hover {
+    background-color: var(--block-bg) !important;
+  }
+}
+
+.mat-mdc-footer-cell {
+  margin-top: 1rem !important;
+  justify-content: flex-end;
+}
+.mat-mdc-cell {
+  border: none !important;
+  &:not(.mat-column-user, .mat-column-name, .mat-column-title, .mat-column-category) {
+    justify-content: center !important;
+  }
+}

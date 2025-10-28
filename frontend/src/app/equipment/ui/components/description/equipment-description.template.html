@@ -1,0 +1,77 @@
+<section class="d-flex flex-column justify-content-between p-4 gap-3 card__wrapper">
+  <div class="d-flex align-items-center justify-content-between">
+    <h2 class="mb-0 card__title">Description</h2>
+    <button matButton="text" color="primary" (click)="edit.emit()">Edit</button>
+  </div>
+  <div class="d-flex flex-column gap-4">
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Name</div>
+        <span class="card__field-title card__field-title-m">{{ equipment()?.title || '-' }} </span>
+      </div>
+    </div>
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Description</div>
+        <span class="card__field-title card__field-title-m">{{
+          equipment()?.description || '-'
+        }}</span>
+      </div>
+    </div>
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Receiving date</div>
+        <span class="card__field-title card__field-title-m">{{
+          (equipment()?.receiptTimestamp | date: 'longDate') || '-'
+        }}</span>
+      </div>
+    </div>
+
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Was used</div>
+        <span class="card__field-title card__field-title-m">{{
+          equipment()?.wasUsed ? 'Yes' : 'No'
+        }}</span>
+      </div>
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">Has defects</div>
+        <span class="card__field-title card__field-title-m">{{
+          equipment()?.hasDefect ? 'Yes' : 'No'
+        }}</span>
+      </div>
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">Status</div>
+        <mat-chip-set>
+          <mat-chip [appChipColor]="equipment()?.status">
+            {{ equipment()?.status | titlecase }}
+            <mat-icon matChipRemove (click)="updateStatus.emit()"> edit </mat-icon>
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+    </div>
+
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">User</div>
+        <div class="d-flex gap-3 align-items-center">
+          <span class="card__field-title card__field-title-m">
+            @if (equipment()?.owner) {
+              <a [routerLink]="['/users', equipment()?.owner?.id]">
+                {{ equipment()?.owner | fullName }}
+              </a>
+            } @else {
+              -
+            }
+          </span>
+
+          @if (equipment()?.owner) {
+            <button mat-icon-button (click)="changeOwner.emit()"><mat-icon>edit</mat-icon></button>
+          } @else {
+            <button matButton (click)="changeOwner.emit()">Add owner</button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

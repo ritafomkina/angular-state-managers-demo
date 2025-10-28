@@ -8,7 +8,6 @@ export interface Vacation extends BaseEntity {
   status: VacationStatusEnum;
   daysAvailable: number;
   daysRequested: number;
-  createdDate: string;
   startDate: string;
   endDate: string;
 }

@@ -1,0 +1,19 @@
+<div class="d-flex flex-column gap-4">
+  <!-- Description -->
+  <app-equipment-description
+    [equipment]="currentEntity()"
+    (edit)="updateDescription()"
+    (updateStatus)="updateStatus()"
+    (changeOwner)="updateOwner()"
+  />
+
+  <!-- Remove equipment -->
+  <button
+    matButton="elevated"
+    color="accent"
+    class="me-3 ms-2 align-self-end"
+    (click)="deleteEquipment()"
+  >
+    Delete equipment
+  </button>
+</div>

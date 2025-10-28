@@ -1,0 +1,151 @@
+<app-filters [filters]="filters()" (filterChange)="filterChange($event)" />
+
+<mat-table
+  matSort
+  [dataSource]="dataSource()"
+  [trackBy]="trackBy"
+  (matSortChange)="sortChange($event)"
+>
+  <!-- User -->
+  <ng-container matColumnDef="user">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="firstName">User</mat-header-cell>
+
+    <mat-cell *matCellDef="let vacation">
+      <app-entity
+        [avatarUrl]="vacation!.user?.photo"
+        [title]="vacation!.user | fullName"
+        [description]="vacation!.user.position"
+      >
+        <app-entity [avatarUrl]="vacation!.user?.photo" />
+      </app-entity>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Types -->
+  <ng-container matColumnDef="type">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="type">Type</mat-header-cell>
+
+    <mat-cell *matCellDef="let vacation">
+      <mat-chip-set>
+        <mat-chip [appChipColor]="vacation?.type">
+          {{ (vacation.type | titlecase) || '' }}
+        </mat-chip>
+      </mat-chip-set>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Days available -->
+  <ng-container matColumnDef="daysAvailable">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="daysAvailable"
+      >Available days</mat-header-cell
+    >
+
+    <mat-cell *matCellDef="let vacation"> {{ vacation.daysAvailable || '0' }} </mat-cell>
+  </ng-container>
+
+  <!-- Days requested -->
+  <ng-container matColumnDef="daysRequested">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="daysRequested"
+      >Requested days</mat-header-cell
+    >
+
+    <mat-cell *matCellDef="let vacation"> {{ vacation.daysRequested || '0' }} </mat-cell>
+  </ng-container>
+
+  <!-- Date range -->
+  <ng-container matColumnDef="dateRange">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="startDate">Date range</mat-header-cell>
+
+    <mat-cell *matCellDef="let vacation"
+      >{{ vacation.startDate | date: 'longDate' }} <br />
+      {{ vacation.endDate | date: 'longDate' }}</mat-cell
+    >
+  </ng-container>
+
+  <!-- Status -->
+  <ng-container matColumnDef="status">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="status">Status</mat-header-cell>
+
+    <mat-cell *matCellDef="let vacation">
+      <mat-chip-set>
+        <mat-chip [appChipColor]="vacation.status"> {{ vacation.status | titlecase }} </mat-chip>
+      </mat-chip-set>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Actions -->
+  <ng-container matColumnDef="actions">
+    <mat-header-cell *matHeaderCellDef>
+      <button mat-icon-button (click)="createVacation()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </mat-header-cell>
+
+    <mat-cell *matCellDef="let vacation">
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+
+      <mat-menu #menu="matMenu">
+        <button
+          mat-menu-item
+          [disabled]="vacation.status !== status.Request"
+          (click)="editVacation(vacation)"
+        >
+          Edit
+        </button>
+
+        <ng-container>
+          <button
+            mat-menu-item
+            [disabled]="vacation.status === status.Approved"
+            (click)="approveVacation(vacation.id)"
+          >
+            Approve
+          </button>
+
+          <button
+            mat-menu-item
+            [disabled]="vacation.status === status.Rejected"
+            (click)="rejectVacation(vacation.id)"
+          >
+            Reject
+          </button>
+        </ng-container>
+        <button
+          mat-menu-item
+          [disabled]="vacation.status === status.Approved || vacation.status === status.Rejected"
+          (click)="deleteVacation(vacation.id)"
+        >
+          Delete
+        </button>
+      </mat-menu>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Nothing found -->
+  <ng-container matColumnDef="nothingFound">
+    <mat-footer-cell class="d-flex justify-content-start" *matFooterCellDef>
+      <span>Nothing has been found...</span>
+    </mat-footer-cell>
+  </ng-container>
+
+  <!-- Paginator -->
+  <ng-container matColumnDef="paginator">
+    <mat-footer-cell *matFooterCellDef>
+      <mat-paginator
+        showFirstLastButtons
+        [pageSizeOptions]="pageSize"
+        [length]="page().total!"
+        [pageIndex]="page().current!"
+        (page)="pageChange($event)"
+      ></mat-paginator>
+    </mat-footer-cell>
+  </ng-container>
+
+  <!-- Wrapper -->
+  <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: columns"></mat-row>
+  <mat-footer-row *matFooterRowDef="dataSource().length === 0 ? ['nothingFound'] : ['paginator']">
+  </mat-footer-row>
+</mat-table>

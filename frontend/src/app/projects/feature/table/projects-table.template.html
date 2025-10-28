@@ -1,0 +1,115 @@
+<app-filters [filters]="filters()" (filterChange)="filterChange($event)" />
+
+<mat-table
+  matSort
+  matSortDisableClear
+  [dataSource]="dataSource()"
+  [trackBy]="trackBy"
+  (matSortChange)="sortChange($event)"
+>
+  <!-- Name -->
+  <ng-container matColumnDef="title">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="title">Name</mat-header-cell>
+
+    <mat-cell
+      *matCellDef="let project"
+      [style.cursor]="'pointer'"
+      [routerLink]="['/projects', project.id]"
+    >
+      <app-entity
+        noAvatar
+        [title]="project.title || '-'"
+        [description]="project.shortDescription"
+      />
+    </mat-cell>
+  </ng-container>
+
+  <!-- Type -->
+  <ng-container matColumnDef="category">
+    <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+
+    <mat-cell *matCellDef="let project">
+      @if (project?.categories.length) {
+        <mat-chip-set>
+          @for (category of project?.categories; track category) {
+            <mat-chip [appChipColor]="category">
+              <span class="text-truncate"> {{ category | titlecase }} </span>
+            </mat-chip>
+          }
+        </mat-chip-set>
+      } @else {
+        <ng-template>-</ng-template>
+      }
+    </mat-cell>
+  </ng-container>
+
+  <!-- Location -->
+  <ng-container matColumnDef="location">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="location">Location</mat-header-cell>
+
+    <mat-cell *matCellDef="let project"> {{ project.location || '-' }} </mat-cell>
+  </ng-container>
+
+  <!-- Start date -->
+  <ng-container matColumnDef="startDate">
+    <mat-header-cell *matHeaderCellDef mat-sort-header="startDate">Start date</mat-header-cell>
+
+    <mat-cell *matCellDef="let project">
+      {{ (project.startDate | date: 'longDate') || '-' }}
+    </mat-cell>
+  </ng-container>
+
+  <!-- Status -->
+  <ng-container matColumnDef="status">
+    <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+
+    <mat-cell *matCellDef="let project">
+      <mat-chip-set>
+        <mat-chip [appChipColor]="project?.status">
+          <span class="text-truncate"> {{ project?.status | titlecase }} </span>
+        </mat-chip>
+      </mat-chip-set>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Actions -->
+  <ng-container matColumnDef="actions">
+    <mat-header-cell *matHeaderCellDef>
+      <button mat-icon-button (click)="createProject()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </mat-header-cell>
+
+    <mat-cell *matCellDef="let project">
+      <button mat-icon-button (click)="deleteProject(project.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </mat-cell>
+  </ng-container>
+
+  <!-- Nothing found -->
+  <ng-container matColumnDef="nothingFound">
+    <mat-footer-cell class="d-flex justify-content-start" *matFooterCellDef>
+      <span>Nothing has been found...</span>
+    </mat-footer-cell>
+  </ng-container>
+
+  <!-- Paginator -->
+  <ng-container matColumnDef="paginator">
+    <mat-footer-cell *matFooterCellDef>
+      <mat-paginator
+        showFirstLastButtons
+        [pageSizeOptions]="pageSize"
+        [length]="page().total!"
+        [pageIndex]="page().current!"
+        (page)="pageChange($event)"
+      ></mat-paginator>
+    </mat-footer-cell>
+  </ng-container>
+
+  <!-- Wrapper -->
+  <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: columns"></mat-row>
+  <mat-footer-row *matFooterRowDef="dataSource().length === 0 ? ['nothingFound'] : ['paginator']">
+  </mat-footer-row>
+</mat-table>

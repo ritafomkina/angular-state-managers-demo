@@ -44,7 +44,6 @@ export function initDatabase() {
       startDate TEXT,
       endDate TEXT,
       status TEXT,
-      techs TEXT,
       sprintCount INTEGER,
       timezone TEXT,
       organization INTEGER
@@ -64,9 +63,6 @@ export function initDatabase() {
       description TEXT,
       receiptTimestamp TEXT,
       wasUsed INTEGER,
-      lastOwnerId INTEGER,
-      lastOwnerFirstName TEXT,
-      lastOwnerLastName TEXT,
       hasDefect INTEGER,
       imageUrl TEXT,
       status TEXT
@@ -86,7 +82,6 @@ export function initDatabase() {
       status TEXT,
       daysAvailable INTEGER,
       daysRequested INTEGER,
-      createdDate TEXT,
       startDate TEXT,
       endDate TEXT
     )

@@ -16,8 +16,8 @@ export function seedDatabase() {
     INSERT INTO projects (
       createdAt, updatedAt, icon, title, location, categories,
       description, shortDescription, startDate, endDate, status,
-      techs, sprintCount, timezone, organization
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      sprintCount, timezone, organization
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   for (const project of MOCKED_PROJECTS) {
@@ -33,7 +33,6 @@ export function seedDatabase() {
       project.startDate,
       project.endDate,
       project.status,
-      JSON.stringify(project.techs),
       project.sprintCount,
       project.timezone,
       project.organization
@@ -73,9 +72,8 @@ export function seedDatabase() {
     INSERT INTO equipment (
       createdAt, updatedAt, title, ownerId, ownerFirstName,
       ownerLastName, description, receiptTimestamp, wasUsed,
-      lastOwnerId, lastOwnerFirstName, lastOwnerLastName,
       hasDefect, imageUrl, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   for (const equipment of MOCKED_EQUIPMENT) {
@@ -89,9 +87,6 @@ export function seedDatabase() {
       equipment.description,
       equipment.receiptTimestamp,
       equipment.wasUsed ? 1 : 0,
-      equipment.lastOwner ? parseInt(equipment.lastOwner.id as any) : null,
-      equipment.lastOwner?.firstName || null,
-      equipment.lastOwner?.lastName || null,
       equipment.hasDefect ? 1 : 0,
       equipment.imageUrl,
       equipment.status
@@ -102,9 +97,9 @@ export function seedDatabase() {
   const insertVacation = db.prepare(`
     INSERT INTO vacations (
       createdAt, updatedAt, userId, userFirstName, userLastName,
-      type, status, daysAvailable, daysRequested, createdDate,
+      type, status, daysAvailable, daysRequested,
       startDate, endDate
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   for (const vacation of MOCKED_VACATIONS) {
@@ -118,7 +113,6 @@ export function seedDatabase() {
       vacation.status,
       vacation.daysAvailable,
       vacation.daysRequested,
-      vacation.createdDate,
       vacation.startDate,
       vacation.endDate
     );

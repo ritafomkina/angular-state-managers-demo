@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>Status</h1>
+
+<mat-dialog-content class="pb-3">
+  <form class="d-flex flex-column" [formGroup]="form">
+    <!--  Status -->
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+
+      <mat-select formControlName="status">
+        @for (status of statuses; track status) {
+          <mat-option [value]="status"> {{ status | titlecase }} </mat-option>
+        }
+      </mat-select>
+      @if (form.controls.status?.hasError('required')) {
+        <mat-error> This field is required. </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-dialog-actions align="end">
+      <button matButton="elevated" color="accent" [mat-dialog-close]="false">Cancel</button>
+
+      <button type="submit" matButton="elevated" color="primary" (click)="submit()">Save</button>
+    </mat-dialog-actions>
+  </form>
+</mat-dialog-content>

@@ -1,0 +1,137 @@
+<h2 mat-dialog-title>Base info</h2>
+
+<mat-dialog-content>
+  <form class="d-flex flex-column" [formGroup]="form">
+    <!-- Name -->
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+
+      <input type="text" autocomplete="off" matInput formControlName="firstName" />
+      @if (form.controls.firstName?.hasError('required')) {
+        <mat-error> This field is required. </mat-error>
+      }
+      @if (form.controls.firstName?.hasError('pattern') && form.controls.firstName?.touched) {
+        <mat-error> Only letters are allowed </mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Last Name -->
+    <mat-form-field appearance="outline">
+      <mat-label>Last name</mat-label>
+
+      <input type="text" autocomplete="off" matInput formControlName="lastName" />
+      @if (form.controls.lastName?.hasError('required')) {
+        <mat-error> This field is required. </mat-error>
+      }
+      @if (form.controls.lastName?.hasError('pattern') && form.controls.lastName?.touched) {
+        <mat-error> Only letters are allowed </mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Position -->
+    <mat-form-field appearance="outline">
+      <mat-label>Position</mat-label>
+
+      <input type="text" autocomplete="off" matInput formControlName="position" />
+
+      @if (form.controls.position?.hasError('required')) {
+        <mat-error> This field is required. </mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Status -->
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+
+      <mat-select formControlName="status">
+        @for (status of statuses; track status) {
+          <mat-option [value]="status">{{ status | titlecase }}</mat-option>
+        }
+      </mat-select>
+
+      @if (form.controls.status?.hasError('required')) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Dob -->
+    <mat-form-field appearance="outline">
+      <mat-label>Date of birth</mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        matInput
+        formControlName="startDate"
+        maxlength="10"
+        [max]="form.controls.startDate?.value"
+        [matDatepicker]="dob"
+      />
+      <mat-datepicker-toggle matIconSuffix [for]="dob">
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-datepicker-toggle>
+      <mat-datepicker #dob></mat-datepicker>
+
+      @if (form.controls.dateOfBirth?.hasError('required')) {
+        <mat-error> This field is required. </mat-error>
+      } @else if (
+        form.controls.dateOfBirth?.invalid &&
+        (form.controls.dateOfBirth?.touched || form.controls.dateOfBirth?.dirty)
+      ) {
+        <mat-error> Invalid date </mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Start date -->
+    <mat-form-field appearance="outline">
+      <mat-label>Start date</mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        matInput
+        formControlName="dateOfBirth"
+        maxlength="10"
+        [min]="form.controls.dateOfBirth?.value"
+        [matDatepicker]="startDate"
+      />
+      <mat-datepicker-toggle matIconSuffix [for]="startDate">
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-datepicker-toggle>
+      <mat-datepicker #startDate></mat-datepicker>
+      @if (form.controls.startDate?.hasError('required')) {
+        <mat-error> This field is required. </mat-error>
+      } @else if (
+        form.controls.startDate?.invalid &&
+        (form.controls.startDate?.touched || form.controls.startDate?.dirty)
+      ) {
+        <mat-error> Invalid date </mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Location -->
+    <mat-form-field appearance="outline">
+      <mat-label>Location</mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        formControlName="location"
+        matInput
+        [matAutocomplete]="auto"
+      />
+
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayCountry">
+        @for (country of displayedCountries(); track country) {
+          <mat-option [value]="country"> {{ country }} </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton="elevated" color="accent" [mat-dialog-close]="false">Cancel</button>
+
+  <button type="submit" matButton="elevated" color="primary" (click)="submit()">Save</button>
+</mat-dialog-actions>

@@ -1,0 +1,64 @@
+<h1 mat-dialog-title>Add new equipment</h1>
+
+<mat-dialog-content class="pb-3">
+  <form class="d-flex flex-column" [formGroup]="form">
+    <!-- Title -->
+    <mat-form-field appearance="outline">
+      <mat-label>Title</mat-label>
+
+      <textarea matInput cdkTextareaAutosize formControlName="title"></textarea>
+
+      @if (form.controls.title?.hasError('required')) {
+        <mat-error> This field is required. </mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Description -->
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+
+      <textarea matInput cdkTextareaAutosize formControlName="description"></textarea>
+
+      @if (form.controls.description?.hasError('required')) {
+        <mat-error> This field is required. </mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Receipt date -->
+    <mat-form-field appearance="outline">
+      <mat-label> Receipt date </mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        matInput
+        formControlName="receiptTimestamp"
+        maxlength="10"
+        [max]="maxDate"
+        [matDatepicker]="receiptTimestamp"
+      />
+      <mat-datepicker-toggle matIconSuffix [for]="receiptTimestamp">
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-datepicker-toggle>
+      <mat-datepicker #receiptTimestamp></mat-datepicker>
+
+      @if (
+        form.controls.receiptTimestamp?.pristine &&
+        form.controls.receiptTimestamp?.hasError('required')
+      ) {
+        <mat-error> This field is required. </mat-error>
+      } @else if (
+        form.controls.receiptTimestamp?.invalid &&
+        (form.controls.receiptTimestamp?.dirty || form.controls.receiptTimestamp?.touched)
+      ) {
+        <mat-error> Invalid date </mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton="elevated" color="accent" [mat-dialog-close]="false">Cancel</button>
+
+  <button type="submit" matButton="elevated" color="primary" (click)="submit()">Save</button>
+</mat-dialog-actions>
