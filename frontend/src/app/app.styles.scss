@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 0 2rem;
+  .nav__link {
+    font-size: 1.5rem;
+    color: var(--text-inactive-color);
+    text-decoration: none;
+
+    &.active {
+      color: var(--primary);
+    }
+  }
+}
