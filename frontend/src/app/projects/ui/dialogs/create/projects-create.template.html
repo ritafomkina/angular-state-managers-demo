@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>New project</h2>
+
+<mat-dialog-content [formGroup]="form">
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Title</mat-label>
+
+    <input type="text" matInput formControlName="title" />
+
+    @if (form.controls.title.hasError('required')) {
+      <mat-error> This field is required </mat-error>
+    }
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton="elevated" color="accent" [mat-dialog-close]="false">Cancel</button>
+
+  <button matButton="elevated" color="primary" (click)="submit()">Save</button>
+</mat-dialog-actions>

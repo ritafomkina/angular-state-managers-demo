@@ -23,7 +23,6 @@ export class ProjectsService {
       startDate: row.startDate,
       endDate: row.endDate,
       status: row.status as ProjectStatusEnum,
-      techs: JSON.parse(row.techs),
       sprintCount: row.sprintCount,
       timezone: row.timezone,
       organization: row.organization,
@@ -89,7 +88,7 @@ export class ProjectsService {
       INSERT INTO projects (
         createdAt, updatedAt, icon, title, location, categories,
         description, shortDescription, startDate, endDate, status,
-        techs, sprintCount, timezone, organization
+        sprintCount, timezone, organization
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
@@ -166,10 +165,6 @@ export class ProjectsService {
     if (data.status !== undefined) {
       fields.push("status = ?");
       values.push(data.status);
-    }
-    if (data.techs !== undefined) {
-      fields.push("techs = ?");
-      values.push(JSON.stringify(data.techs));
     }
     if (data.sprintCount !== undefined) {
       fields.push("sprintCount = ?");

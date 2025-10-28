@@ -1,0 +1,39 @@
+<mat-form-field appearance="outline" class="w-100">
+  <mat-label>{{ label() }}</mat-label>
+
+  <input
+    type="text"
+    autocomplete="off"
+    matInput
+    [formControlName]="controlKey()"
+    [matAutocomplete]="autocomplete"
+    [placeholder]="placeholder()"
+    (focus)="onFocus()"
+  />
+
+  <mat-autocomplete #autocomplete="matAutocomplete" [displayWith]="display">
+    @for (user of store.users(); track user.id) {
+      <mat-option [value]="user">
+        <div class="d-flex align-items-center gap-3">
+          <span>{{ user | fullName }}</span>
+        </div>
+      </mat-option>
+    }
+    @if (!store.users().length) {
+      <mat-option> Nothing has been found... </mat-option>
+    }
+  </mat-autocomplete>
+
+  @if (control.invalid && (control.touched || control.dirty)) {
+    <mat-error>
+      @if (required() && control.hasError('required')) {
+        This field is required
+      }
+      @if (control.hasError('notAnObject')) {
+        This field is not an object
+      } @else {
+        {{ additionalValidatorFnErrorText()! }}
+      }
+    </mat-error>
+  }
+</mat-form-field>

@@ -1,0 +1,92 @@
+<h2 mat-dialog-title>Vacation request</h2>
+
+<mat-dialog-content>
+  <form class="d-flex flex-column" [formGroup]="form">
+    <!-- User -->
+    <app-user-search-control
+      [defaultItem]="user!"
+      [label]="'User'"
+      [isDisabled]="isDisabledUserCtrl()"
+    />
+
+    <!-- Type -->
+    <mat-form-field appearance="outline">
+      <mat-label>Type</mat-label>
+
+      <mat-select formControlName="type">
+        @for (type of types; track type) {
+          <mat-option [value]="type">{{ type | titlecase }}</mat-option>
+        }
+      </mat-select>
+
+      @if (form.controls.type?.hasError('required')) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Start date -->
+    <mat-form-field appearance="outline">
+      <mat-label>Start date</mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        matInput
+        formControlName="startDate"
+        maxlength="10"
+        [min]="minDate"
+        [max]="form.controls.endDate?.value"
+        [matDatepicker]="startDate"
+      />
+
+      <mat-datepicker-toggle matIconSuffix [for]="startDate">
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-datepicker-toggle>
+      <mat-datepicker #startDate></mat-datepicker>
+
+      <mat-error>
+        @if (form.controls.startDate?.pristine && form.controls.startDate?.hasError('required')) {
+          This field is required
+        } @else if (
+          form.controls.startDate?.touched && form.controls.startDate?.hasError('notADate')
+        ) {
+          Invalid date
+        }
+      </mat-error>
+    </mat-form-field>
+
+    <!-- End date -->
+    <mat-form-field appearance="outline">
+      <mat-label>End date</mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        matInput
+        formControlName="endDate"
+        maxlength="10"
+        [min]="form.controls.startDate?.value"
+        [matDatepicker]="endDate"
+      />
+
+      <mat-datepicker-toggle matIconSuffix [for]="endDate">
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-datepicker-toggle>
+      <mat-datepicker #endDate></mat-datepicker>
+
+      <mat-error>
+        @if (form.controls.endDate?.pristine && form.controls.endDate?.hasError('required')) {
+          This field is required
+        } @else if (form.controls.endDate?.touched && form.controls.endDate?.hasError('notADate')) {
+          Invalid date
+        }
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton="elevated" color="accent" [mat-dialog-close]="false">Cancel</button>
+
+  <button type="submit" matButton="elevated" color="primary" (click)="submit()">Save</button>
+</mat-dialog-actions>

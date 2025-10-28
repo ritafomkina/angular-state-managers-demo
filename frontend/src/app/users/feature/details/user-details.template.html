@@ -1,0 +1,4 @@
+<div class="d-flex flex-column gap-4">
+  <app-user-description [user]="currentEntity()" (edit)="updateDescription()" />
+  <app-user-contacts [contacts]="currentEntity()?.contacts" (edit)="updateContacts()" />
+</div>

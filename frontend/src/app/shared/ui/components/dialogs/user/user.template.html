@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>{{ 'User' }}</h2>
+
+<mat-dialog-content [formGroup]="form">
+  <app-user-search-control label="{{ 'Select user' }}"></app-user-search-control>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton="elevated" color="accent" [mat-dialog-close]="false">Cancel</button>
+
+  <button type="submit" matButton="elevated" color="primary" (click)="submit()">Save</button>
+</mat-dialog-actions>

@@ -1,0 +1,76 @@
+<div class="d-flex flex-column gap-3">
+  <app-filters [filters]="filters()" (filterChange)="filterChange($event)" />
+  <button matButton (click)="createEquipment()" class="align-self-end">Add equipment</button>
+
+  @if (list()?.results?.length) {
+    <div class="d-flex flex-wrap gap-3">
+      @for (equipment of list()!.results; track equipment.id) {
+        <div
+          class="flex-fill p-3 card__wrapper"
+          style="max-width: 31%"
+          [routerLink]="['/equipment', equipment.id]"
+        >
+          <div
+            class="mb-3 d-flex flex-column justify-content-center align-items-center m-0 border-box position-relative"
+          >
+            @if (equipment.imageUrl) {
+              <img [src]="equipment.imageUrl" width="300" height="200" alt="equipment" />
+            }
+            <mat-chip-set class="position-absolute top-0 end-0">
+              <mat-chip [appChipColor]="equipment.owner ? statuses.Occupied : statuses.Available">
+                <span> {{ equipment.owner ? 'Occupied' : 'Available' }} </span>
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <div class="flex-grow-1 d-flex flex-column justify-content-between">
+            <span class="mb-4 card__field-title card__field-title-m">
+              {{ equipment.title }}
+            </span>
+
+            <ng-container>
+              <div class="d-flex justify-content-between w-75">
+                <p class="mb-0 card__field-description card__field-description-m">
+                  Date of receipt:
+                </p>
+                <span class="mb-0 d-flex align-items-center w-50">
+                  {{ (equipment.receiptTimestamp | date: 'longDate') || '-' }}
+                </span>
+              </div>
+              <div class="d-flex justify-content-between w-75">
+                <p class="mb-0 card__field-description card__field-description-m">Was used:</p>
+                <span class="mb-0 d-flex align-items-center w-50">
+                  {{ equipment.wasUsed ? 'Yes' : 'No' }}
+                </span>
+              </div>
+              <div class="d-flex justify-content-between w-75">
+                <p class="mb-0 card__field-description card__field-description-m">Current user:</p>
+                <span class="mb-0 d-flex align-items-center w-50">
+                  @if (equipment.owner) {
+                    <a
+                      class="equipment__link"
+                      [routerLink]="['/users', equipment.owner.id]"
+                      (click.stop)="(null)"
+                    >
+                      {{ equipment.owner | fullName }}
+                    </a>
+                  } @else {
+                    -
+                  }
+                </span>
+              </div>
+              <div class="d-flex justify-content-between w-75">
+                <p class="mb-0 card__field-description card__field-description-m">Has defects:</p>
+                <span class="mb-0 d-flex align-items-center w-50">
+                  {{ equipment.hasDefect ? 'Yes' : 'No' }}
+                </span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <span title>Nothing has been found...</span>
+  }
+</div>

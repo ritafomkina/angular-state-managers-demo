@@ -1,0 +1,70 @@
+<section class="d-flex flex-column justify-content-between p-4 gap-3 card__wrapper">
+  <div class="d-flex align-items-center justify-content-between">
+    <h2 class="mb-0 card__title">Description</h2>
+    <button matButton="text" color="primary" (click)="edit.emit()">Edit</button>
+  </div>
+  <div class="d-flex flex-column gap-4">
+    <!-- Name -->
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Name</div>
+        <span class="card__field-title card__field-title-m">{{ project()?.title || '-' }}</span>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="d-flex gap-5">
+      <mat-chip [appChipColor]="project()?.status">
+        {{ project()?.status | titlecase }}
+      </mat-chip>
+    </div>
+
+    <!-- Description -->
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Description</div>
+        <span class="card__field-title card__field-title-m">{{
+          project()?.description || '-'
+        }}</span>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Location</div>
+        <span class="card__field-title card__field-title-m">{{ project()?.location || '-' }}</span>
+      </div>
+    </div>
+
+    <!-- Start and end date -->
+    <div class="d-flex gap-5">
+      <div class="d-flex flex-column gap-2">
+        <div class="card__field-description card__field-description-m">Start date</div>
+        <span class="card__field-title card__field-title-m">{{
+          (project()?.startDate | date: 'longDate') || '-'
+        }}</span>
+      </div>
+
+      <div class="d-flex flex-column gap-2 ms-5">
+        <div class="card__field-description card__field-description-m">End date</div>
+        <span class="card__field-title card__field-title-m">{{
+          (project()?.endDate | date: 'longDate') || '-'
+        }}</span>
+      </div>
+    </div>
+
+    <mat-chip-set class="d-flex mb-3 lt-min-height-l">
+      <!-- Categories -->
+      @if (project()?.categories?.length) {
+        @for (category of project()?.categories; track category) {
+          <mat-chip [appChipColor]="category"> {{ category | titlecase }} </mat-chip>
+        }
+      }
+
+      <button matButton="text" color="primary" (click)="editCategories.emit()">
+        <mat-icon (click)="editCategories.emit()"> edit </mat-icon>
+      </button>
+    </mat-chip-set>
+  </div>
+</section>

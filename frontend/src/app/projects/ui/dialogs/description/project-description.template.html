@@ -1,0 +1,113 @@
+<h2 mat-dialog-title>Description</h2>
+
+<mat-dialog-content>
+  <form class="d-flex flex-column" [formGroup]="form">
+    <!-- Title -->
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+
+      <input type="text" autocomplete="off" matInput formControlName="title" />
+      @if (form.controls.title?.hasError('required')) {
+        <mat-error> This field is required </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+
+      <mat-select formControlName="status">
+        @for (status of statuses; track status) {
+          <mat-option [value]="status">{{ status | titlecase }}</mat-option>
+        }
+      </mat-select>
+
+      @if (form.controls.status?.hasError('required')) {
+        <mat-error>This field is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Description -->
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+
+      <textarea matInput cdkTextareaAutosize formControlName="description"></textarea>
+    </mat-form-field>
+
+    <!-- Location -->
+    <mat-form-field appearance="outline">
+      <mat-label>Location</mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        formControlName="location"
+        matInput
+        [matAutocomplete]="auto"
+      />
+
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayCountry">
+        @for (country of displayedCountries(); track country) {
+          <mat-option [value]="country"> {{ country }} </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <!-- Start date -->
+    <mat-form-field appearance="outline">
+      <mat-label>Start date</mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        matInput
+        formControlName="startDate"
+        maxlength="10"
+        [max]="form.controls.endDate?.value"
+        [matDatepicker]="startDate"
+      />
+
+      <mat-datepicker-toggle matIconSuffix [for]="startDate">
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-datepicker-toggle>
+      <mat-datepicker #startDate></mat-datepicker>
+      @if (
+        form.controls.startDate?.invalid &&
+        (form.controls.startDate?.touched || form.controls.startDate?.dirty)
+      ) {
+        <mat-error> Invalid date </mat-error>
+      }
+    </mat-form-field>
+
+    <!-- End date -->
+    <mat-form-field appearance="outline">
+      <mat-label>End date</mat-label>
+
+      <input
+        type="text"
+        autocomplete="off"
+        matInput
+        formControlName="endDate"
+        maxlength="10"
+        [min]="form.controls.startDate?.value"
+        [matDatepicker]="endDate"
+      />
+
+      <mat-datepicker-toggle matIconSuffix [for]="endDate">
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-datepicker-toggle>
+      <mat-datepicker #endDate></mat-datepicker>
+      @if (
+        form.controls.endDate?.invalid &&
+        (form.controls.endDate?.touched || form.controls.endDate?.dirty)
+      ) {
+        <mat-error> Invalid date </mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton="elevated" color="accent" [mat-dialog-close]="false">Cancel</button>
+
+  <button type="submit" matButton="elevated" color="primary" (click)="submit()">Save</button>
+</mat-dialog-actions>
