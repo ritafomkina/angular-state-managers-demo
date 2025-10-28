@@ -1,0 +1,16 @@
+<div class="d-flex align-items-center justify-content-center">
+  @if (!noAvatar()) {
+    <div class="d-flex avatar">
+      <img [src]="avatarUrl()" alt="user" />
+    </div>
+  }
+  <div class="d-flex flex-column ps-3">
+    <span class="card__field-title card__field-title-s">
+      {{ title() }}
+    </span>
+
+    <span class="card__field-description card__field-description-s">
+      {{ description() }}
+    </span>
+  </div>
+</div>
