@@ -11,6 +11,15 @@ import {
 
 export class VacationsService {
   private rowToVacation(row: VacationRow): Vacation {
+    // Fetch user photo from users table since it's not stored in vacations table
+    let userPhoto: string = "";
+    if (row.userId) {
+      const user = db
+        .prepare("SELECT photo FROM users WHERE id = ?")
+        .get(row.userId) as { photo: string | null } | undefined;
+      userPhoto = user?.photo || "";
+    }
+
     return {
       id: row.id,
       createdAt: row.createdAt,
@@ -19,13 +28,12 @@ export class VacationsService {
         id: row.userId,
         firstName: row.userFirstName,
         lastName: row.userLastName,
-        photo: row.userPhoto,
+        photo: userPhoto,
       },
       type: row.type as VacationTypeEnum,
       status: row.status as VacationStatusEnum,
       daysAvailable: row.daysAvailable,
       daysRequested: row.daysRequested,
-      createdDate: row.createdDate,
       startDate: row.startDate,
       endDate: row.endDate,
     };
@@ -91,26 +99,60 @@ export class VacationsService {
 
   create(data: any): Vacation {
     const now = new Date().toISOString();
+    const userId = data.userId || data.user?.id || null;
+
+    // Fetch user data if userId is provided
+    let userFirstName: string | null = null;
+    let userLastName: string | null = null;
+
+    if (userId) {
+      const user = db
+        .prepare("SELECT firstName, lastName FROM users WHERE id = ?")
+        .get(userId) as { firstName: string; lastName: string } | undefined;
+
+      if (user) {
+        userFirstName = user.firstName;
+        userLastName = user.lastName;
+      }
+    }
+
+    // Validate and set status (default to Request for new vacations)
+    const validStatuses = Object.values(VacationStatusEnum);
+    let status: VacationStatusEnum;
+
+    if (
+      data.status &&
+      validStatuses.includes(data.status as VacationStatusEnum)
+    ) {
+      status = data.status as VacationStatusEnum;
+    } else if (!data.status) {
+      status = VacationStatusEnum.Request;
+    } else {
+      throw new Error(
+        `Invalid status: ${data.status}. Valid values are: ${validStatuses.join(
+          ", "
+        )}`
+      );
+    }
 
     const stmt = db.prepare(`
       INSERT INTO vacations (
         createdAt, updatedAt, userId, userFirstName, userLastName,
-        type, status, daysAvailable, daysRequested, createdDate,
+        type, status, daysAvailable, daysRequested,
         startDate, endDate
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
       now,
       now,
-      data.user || null,
-      null,
-      null,
+      userId,
+      userFirstName,
+      userLastName,
       data.type || null,
-      null,
-      null,
-      null,
-      null,
+      status,
+      data.daysAvailable ?? null,
+      data.daysRequested ?? null,
       data.startDate || null,
       data.endDate || null
     );
@@ -144,8 +186,17 @@ export class VacationsService {
       values.push(data.type);
     }
     if (data.status !== undefined) {
+      // Validate status is a valid VacationStatusEnum value
+      const validStatuses = Object.values(VacationStatusEnum);
+      if (!validStatuses.includes(data.status as VacationStatusEnum)) {
+        throw new Error(
+          `Invalid status: ${
+            data.status
+          }. Valid values are: ${validStatuses.join(", ")}`
+        );
+      }
       fields.push("status = ?");
-      values.push(data.status);
+      values.push(data.status as VacationStatusEnum);
     }
     if (data.daysAvailable !== undefined) {
       fields.push("daysAvailable = ?");
@@ -154,10 +205,6 @@ export class VacationsService {
     if (data.daysRequested !== undefined) {
       fields.push("daysRequested = ?");
       values.push(data.daysRequested);
-    }
-    if (data.createdDate !== undefined) {
-      fields.push("createdDate = ?");
-      values.push(data.createdDate);
     }
     if (data.startDate !== undefined) {
       fields.push("startDate = ?");
