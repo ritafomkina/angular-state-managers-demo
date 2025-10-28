@@ -95,7 +95,6 @@ export interface Project extends BaseEntity {
   startDate: string;
   endDate: string;
   status: ProjectStatusEnum;
-  techs: Technologies;
   sprintCount: number;
   timezone: string;
   organization: number;
@@ -107,7 +106,6 @@ export interface Equipment extends BaseEntity {
   description: string;
   receiptTimestamp: string;
   wasUsed: boolean;
-  lastOwner: Pick<User, "id" | "firstName" | "lastName"> | null;
   hasDefect: boolean;
   imageUrl: string;
   status?: EquipmentStatusEnum;
@@ -119,7 +117,6 @@ export interface Vacation extends BaseEntity {
   status: VacationStatusEnum;
   daysAvailable: number;
   daysRequested: number;
-  createdDate: string;
   startDate: string;
   endDate: string;
 }
@@ -178,7 +175,6 @@ export interface ProjectRow {
   startDate: string;
   endDate: string;
   status: string;
-  techs: string;
   sprintCount: number;
   timezone: string;
   organization: number;
@@ -195,9 +191,6 @@ export interface EquipmentRow {
   description: string;
   receiptTimestamp: string;
   wasUsed: number;
-  lastOwnerId: number | null;
-  lastOwnerFirstName: string | null;
-  lastOwnerLastName: string | null;
   hasDefect: number;
   imageUrl: string;
   status: string;
@@ -215,7 +208,6 @@ export interface VacationRow {
   status: string;
   daysAvailable: number;
   daysRequested: number;
-  createdDate: string;
   startDate: string;
   endDate: string;
 }

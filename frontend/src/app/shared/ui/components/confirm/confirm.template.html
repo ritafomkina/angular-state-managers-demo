@@ -1,0 +1,18 @@
+<h2 matDialogTitle>
+  <mat-icon class="icon">info</mat-icon>
+  <span class="text">{{ data.title }}</span>
+</h2>
+
+<mat-dialog-content>
+  <p>Are you sure you want to proceed?</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button type="button" matButton="elevated" color="accent" [mat-dialog-close]="false">
+    Cancel
+  </button>
+
+  <button type="button" matButton="elevated" color="primary" [mat-dialog-close]="true">
+    Confirm
+  </button>
+</mat-dialog-actions>

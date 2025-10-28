@@ -10,6 +10,29 @@ import {
 
 export class EquipmentService {
   private rowToEquipment(row: EquipmentRow): Equipment {
+    // Fetch owner data if ownerId exists but firstName/lastName are missing
+    let ownerFirstName: string | null = row.ownerFirstName;
+    let ownerLastName: string | null = row.ownerLastName;
+
+    if (row.ownerId && (!ownerFirstName || !ownerLastName)) {
+      const user = db
+        .prepare("SELECT firstName, lastName FROM users WHERE id = ?")
+        .get(row.ownerId) as
+        | { firstName: string; lastName: string }
+        | undefined;
+
+      if (user) {
+        ownerFirstName = user.firstName;
+        ownerLastName = user.lastName;
+
+        // Update the database row to cache the fetched values
+        const now = new Date().toISOString();
+        db.prepare(
+          "UPDATE equipment SET ownerFirstName = ?, ownerLastName = ?, updatedAt = ? WHERE id = ?"
+        ).run(ownerFirstName, ownerLastName, now, row.id);
+      }
+    }
+
     return {
       id: row.id,
       createdAt: row.createdAt,
@@ -18,20 +41,13 @@ export class EquipmentService {
       owner: row.ownerId
         ? {
             id: row.ownerId,
-            firstName: row.ownerFirstName!,
-            lastName: row.ownerLastName!,
+            firstName: ownerFirstName || "",
+            lastName: ownerLastName || "",
           }
         : null,
       description: row.description,
       receiptTimestamp: row.receiptTimestamp,
       wasUsed: row.wasUsed === 1,
-      lastOwner: row.lastOwnerId
-        ? {
-            id: row.lastOwnerId,
-            firstName: row.lastOwnerFirstName!,
-            lastName: row.lastOwnerLastName!,
-          }
-        : null,
       hasDefect: row.hasDefect === 1,
       imageUrl: row.imageUrl,
       status: row.status as EquipmentStatusEnum,
@@ -85,31 +101,67 @@ export class EquipmentService {
   create(data: any): Equipment {
     const now = new Date().toISOString();
 
+    // Validate and set status (default to Available for new equipment)
+    const validStatuses = Object.values(EquipmentStatusEnum);
+    let status: EquipmentStatusEnum;
+
+    if (
+      data.status &&
+      validStatuses.includes(data.status as EquipmentStatusEnum)
+    ) {
+      status = data.status as EquipmentStatusEnum;
+    } else if (!data.status) {
+      status = EquipmentStatusEnum.Available;
+    } else {
+      throw new Error(
+        `Invalid status: ${data.status}. Valid values are: ${validStatuses.join(
+          ", "
+        )}`
+      );
+    }
+
+    // Handle owner data if provided
+    const ownerId = data.ownerId || data.owner?.id || null;
+    let ownerFirstName: string | null = null;
+    let ownerLastName: string | null = null;
+
+    if (ownerId) {
+      const ownerIdNum = Number(ownerId);
+      if (!isNaN(ownerIdNum)) {
+        const user = db
+          .prepare("SELECT firstName, lastName FROM users WHERE id = ?")
+          .get(ownerIdNum) as
+          | { firstName: string; lastName: string }
+          | undefined;
+
+        if (user) {
+          ownerFirstName = user.firstName;
+          ownerLastName = user.lastName;
+        }
+      }
+    }
+
     const stmt = db.prepare(`
       INSERT INTO equipment (
         createdAt, updatedAt, title, ownerId, ownerFirstName,
         ownerLastName, description, receiptTimestamp, wasUsed,
-        lastOwnerId, lastOwnerFirstName, lastOwnerLastName,
         hasDefect, imageUrl, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
       now,
       now,
       data.title || null,
-      data.owner || null,
-      null,
-      null,
+      ownerId,
+      ownerFirstName,
+      ownerLastName,
       data.description || null,
       data.receiptTimestamp || null,
-      0,
-      null,
-      null,
-      null,
-      0,
-      null,
-      data.status || null
+      data.wasUsed ? 1 : 0,
+      data.hasDefect ? 1 : 0,
+      data.imageUrl || null,
+      status
     );
 
     return this.getById(result.lastInsertRowid as number)!;
@@ -129,14 +181,37 @@ export class EquipmentService {
       values.push(data.title);
     }
     if (data.ownerId !== undefined) {
+      // Convert ownerId to number if it's a string
+      const ownerId = data.ownerId === null ? null : Number(data.ownerId);
+
       fields.push("ownerId = ?");
-      values.push(data.ownerId);
+      values.push(ownerId);
+
+      // Fetch owner's firstName and lastName from users table
+      let ownerFirstName: string | null = null;
+      let ownerLastName: string | null = null;
+
+      if (ownerId && !isNaN(ownerId)) {
+        const user = db
+          .prepare("SELECT firstName, lastName FROM users WHERE id = ?")
+          .get(ownerId) as { firstName: string; lastName: string } | undefined;
+
+        if (user) {
+          ownerFirstName = user.firstName;
+          ownerLastName = user.lastName;
+        }
+      }
+
+      fields.push("ownerFirstName = ?");
+      values.push(ownerFirstName);
+      fields.push("ownerLastName = ?");
+      values.push(ownerLastName);
     }
-    if (data.ownerFirstName !== undefined) {
+    if (data.ownerFirstName !== undefined && data.ownerId === undefined) {
       fields.push("ownerFirstName = ?");
       values.push(data.ownerFirstName);
     }
-    if (data.ownerLastName !== undefined) {
+    if (data.ownerLastName !== undefined && data.ownerId === undefined) {
       fields.push("ownerLastName = ?");
       values.push(data.ownerLastName);
     }
