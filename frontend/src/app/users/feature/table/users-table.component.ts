@@ -24,7 +24,15 @@ import {
   FiltersComponent,
 } from 'src/app/shared/ui';
 
-import { UsersService } from 'src/app/users/services/users.service';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { ConfirmDialog } from 'src/app/shared/ui';
+import { UsersCreateDialog } from 'src/app/users/ui/dialogs/create/users-create.dialog';
+import { UsersApiService } from 'src/app/shared/services';
+import { SnackbarService } from 'src/app/core/services';
+import { UsersQuery } from '../../state/users.query';
+import { UsersStore } from '../../state/users.store';
+import { filter, switchMap, tap } from 'rxjs';
+import { Router } from '@angular/router';
 
 const imports = [
   RouterLink,
@@ -48,7 +56,12 @@ const imports = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class UsersTableComponent implements OnInit {
-  private readonly _usersService = inject(UsersService);
+  private readonly _dialog = inject(MatDialog);
+  private readonly _snackbarService = inject(SnackbarService);
+  private readonly _router = inject(Router);
+  private readonly _usersApi = inject(UsersApiService);
+  private readonly _usersStore = inject(UsersStore);
+  private readonly _usersQuery = inject(UsersQuery);
   private readonly _destroyRef = inject(DestroyRef);
 
   private queryParams: QueryParameters = { size: 20, current: 1 };
@@ -56,8 +69,8 @@ export default class UsersTableComponent implements OnInit {
   readonly columns = TABLE_COLUMNS.users;
   readonly pageSize: number[] = [20, 50, 100, 200];
 
-  readonly users = toSignal(this._usersService.getUsers(), { initialValue: null });
-  readonly filters = toSignal(this._usersService.getFilters(), { initialValue: null });
+  readonly users = toSignal(this._usersQuery.selectUsers(), { initialValue: null });
+  readonly filters = toSignal(this._usersQuery.selectFilters(), { initialValue: null });
 
   readonly dataSource = computed<User[]>(() => this.users()?.results || []);
 
@@ -69,7 +82,8 @@ export default class UsersTableComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this._usersService.setQueryParams(this.queryParams);
+    this.loadFilters();
+    this.loadUsers(this.queryParams);
   }
 
   trackBy(index: number): number {
@@ -77,21 +91,65 @@ export default class UsersTableComponent implements OnInit {
   }
 
   createUser(): void {
-    this._usersService.createUser().pipe(takeUntilDestroyed(this._destroyRef)).subscribe();
+    const config: MatDialogConfig = { width: '600px', data: null };
+    this._dialog
+      .open(UsersCreateDialog, config)
+      .afterClosed()
+      .pipe(
+        filter(Boolean),
+        switchMap((user) =>
+          this._usersApi.create(user).pipe(
+            tap({
+              next: (newUser) => {
+                this._snackbarService.open('User created successfully', 'success');
+                this._router.navigate(['/users/', newUser.id]);
+                this._usersStore.update({ user: newUser });
+                this.loadUsers(this.queryParams);
+              },
+              error: () => this._snackbarService.open('Error creating user', 'error'),
+            }),
+          ),
+        ),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
   }
 
   deleteUser(id: string): void {
-    this._usersService.deleteUser(id).pipe(takeUntilDestroyed(this._destroyRef)).subscribe();
+    const config: MatDialogConfig = {
+      width: '600px',
+      data: { title: 'You are about to delete this user' },
+    };
+    this._dialog
+      .open(ConfirmDialog, config)
+      .afterClosed()
+      .pipe(
+        filter(Boolean),
+        switchMap(() =>
+          this._usersApi.delete(id).pipe(
+            tap({
+              next: () => {
+                this._snackbarService.open('User was successfully deleted', 'success');
+                this.loadUsers(this.queryParams);
+              },
+              error: () =>
+                this._snackbarService.open('An error occured while deleting user', 'error'),
+            }),
+          ),
+        ),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
   }
 
   filterChange(filter: string): void {
     this.queryParams = { ...this.queryParams, filter };
-    this._usersService.setQueryParams(this.queryParams);
+    this.loadUsers(this.queryParams);
   }
 
   sortChange(sort: Sort): void {
     if (!sort) {
-      this._usersService.setQueryParams(this.queryParams);
+      this.loadUsers(this.queryParams);
       return;
     }
 
@@ -99,7 +157,7 @@ export default class UsersTableComponent implements OnInit {
     const sortValue = `${direction}${sort.active}`;
 
     this.queryParams = { ...this.queryParams, sort: sortValue };
-    this._usersService.setQueryParams(this.queryParams);
+    this.loadUsers(this.queryParams);
   }
 
   pageChange(page: PageEvent): void {
@@ -108,6 +166,36 @@ export default class UsersTableComponent implements OnInit {
       current: page.pageIndex + 1,
       size: page.pageSize,
     };
-    this._usersService.setQueryParams(this.queryParams);
+    this.loadUsers(this.queryParams);
+  }
+
+  private loadUsers(queryParams: QueryParameters): void {
+    this._usersStore.update({ queryParams });
+    this._usersApi
+      .search(queryParams)
+      .pipe(
+        tap({
+          next: (users) => this._usersStore.update({ users }),
+          error: () => this._snackbarService.open('Error loading users', 'error'),
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
+  }
+
+  private loadFilters(): void {
+    if (this.filters()) {
+      return;
+    }
+    this._usersApi
+      .summary()
+      .pipe(
+        tap({
+          next: (filters) => this._usersStore.update({ filters }),
+          error: () => this._snackbarService.open('Error loading filters', 'error'),
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
   }
 }
