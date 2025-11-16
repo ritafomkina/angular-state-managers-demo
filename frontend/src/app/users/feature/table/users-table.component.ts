@@ -24,7 +24,13 @@ import {
   FiltersComponent,
 } from 'src/app/shared/ui';
 
-import { UsersService } from 'src/app/users/services/users.service';
+import { Store } from '@ngxs/store';
+import { UsersState } from '../../state/users.state';
+import { CreateUser, DeleteUser, LoadFilters, SetQueryParams } from '../../state/users.actions';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { UsersCreateDialog } from 'src/app/users/ui/dialogs/create/users-create.dialog';
+import { ConfirmDialog } from 'src/app/shared/ui';
+import { filter, switchMap } from 'rxjs';
 
 const imports = [
   RouterLink,
@@ -48,7 +54,8 @@ const imports = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class UsersTableComponent implements OnInit {
-  private readonly _usersService = inject(UsersService);
+  private readonly _store = inject(Store);
+  private readonly _dialog = inject(MatDialog);
   private readonly _destroyRef = inject(DestroyRef);
 
   private queryParams: QueryParameters = { size: 20, current: 1 };
@@ -56,8 +63,8 @@ export default class UsersTableComponent implements OnInit {
   readonly columns = TABLE_COLUMNS.users;
   readonly pageSize: number[] = [20, 50, 100, 200];
 
-  readonly users = toSignal(this._usersService.getUsers(), { initialValue: null });
-  readonly filters = toSignal(this._usersService.getFilters(), { initialValue: null });
+  readonly users = toSignal(this._store.select(UsersState.users), { initialValue: null });
+  readonly filters = toSignal(this._store.select(UsersState.filters), { initialValue: null });
 
   readonly dataSource = computed<User[]>(() => this.users()?.results || []);
 
@@ -69,7 +76,8 @@ export default class UsersTableComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this._usersService.setQueryParams(this.queryParams);
+    this._store.dispatch(new LoadFilters());
+    this._store.dispatch(new SetQueryParams(this.queryParams));
   }
 
   trackBy(index: number): number {
@@ -77,21 +85,42 @@ export default class UsersTableComponent implements OnInit {
   }
 
   createUser(): void {
-    this._usersService.createUser().pipe(takeUntilDestroyed(this._destroyRef)).subscribe();
+    const config: MatDialogConfig = { width: '600px', data: null };
+    this._dialog
+      .open(UsersCreateDialog, config)
+      .afterClosed()
+      .pipe(
+        filter(Boolean),
+        switchMap((user) => this._store.dispatch(new CreateUser(user))),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
   }
 
   deleteUser(id: string): void {
-    this._usersService.deleteUser(id).pipe(takeUntilDestroyed(this._destroyRef)).subscribe();
+    const config: MatDialogConfig = {
+      width: '600px',
+      data: { title: 'You are about to delete this user' },
+    };
+    this._dialog
+      .open(ConfirmDialog, config)
+      .afterClosed()
+      .pipe(
+        filter(Boolean),
+        switchMap(() => this._store.dispatch(new DeleteUser(id))),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
   }
 
   filterChange(filter: string): void {
     this.queryParams = { ...this.queryParams, filter };
-    this._usersService.setQueryParams(this.queryParams);
+    this._store.dispatch(new SetQueryParams(this.queryParams));
   }
 
   sortChange(sort: Sort): void {
     if (!sort) {
-      this._usersService.setQueryParams(this.queryParams);
+      this._store.dispatch(new SetQueryParams(this.queryParams));
       return;
     }
 
@@ -99,7 +128,7 @@ export default class UsersTableComponent implements OnInit {
     const sortValue = `${direction}${sort.active}`;
 
     this.queryParams = { ...this.queryParams, sort: sortValue };
-    this._usersService.setQueryParams(this.queryParams);
+    this._store.dispatch(new SetQueryParams(this.queryParams));
   }
 
   pageChange(page: PageEvent): void {
@@ -108,6 +137,6 @@ export default class UsersTableComponent implements OnInit {
       current: page.pageIndex + 1,
       size: page.pageSize,
     };
-    this._usersService.setQueryParams(this.queryParams);
+    this._store.dispatch(new SetQueryParams(this.queryParams));
   }
 }
